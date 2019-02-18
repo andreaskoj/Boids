@@ -43,7 +43,7 @@ class Bird {
         
         this.vertexRightX = this.vertexTopX + -20;
         this.vertexRightY = this.vertexTopY + 60;
-        console.log(this.vertexTopX);
+        //console.log(this.vertexTopX);
     }
     
     draw() {
@@ -56,31 +56,60 @@ class Bird {
         c.fill();
     }
     
-    update() {
+    move() {
+        console.log("tx" +this.vertexTopX);
+        console.log("ty" +this.vertexTopY);
+        
+        console.log("rx" +this.vertexRightX);
+        console.log("ry" +this.vertexRightY);
+        
+        console.log("lx" +this.vertexLeftX);
+        console.log("ly" +this.vertexLeftY);
+        console.log(" ");
+        this.vertexTopX = this.vertexTopX;
+        this.vertexTopY = this.vertexTopY +20;
+        
+        this.vertexLeftX = this.vertexLeftX;
+        this.vertexLeftY = this.vertexLeftY + 20;
+        
+        this.vertexRightX = this.vertexRightX;
+        this.vertexRightY = this.vertexRightY+20;
+        this.draw();
         console.log(this.vertexTopX);
-        this.vertexTopX = this.vertexTopX - this.dx;
-        this.vertexTopY = this.vertexTopY - this.dy;
+        console.log(this.vertexTopY);
         
-        this.vertexLeftX = this.vertexLeftX - this.dx;
-        this.vertexLeftY = this.vertexLeftY - this.dy;
+        console.log(this.vertexRightX);
+        console.log(this.vertexRightY);
         
-        this.vertexRightX = this.vertexRightX - this.dx;
-        this.vertexRightY = this.vertexRightY - this.dy;
+        console.log(this.vertexLeftX);
+        console.log(this.vertexLeftY);
+    }
+    
+    update() {
+
+        this.vertexTopX = this.vertexTopX;
+        this.vertexTopY = this.vertexTopY + 5;
         
-        this.draw;
+        this.vertexLeftX = this.vertexLeftX ;
+        this.vertexLeftY = this.vertexLeftY + 5;
+        
+        this.vertexRightX = this.vertexRightX;
+        this.vertexRightY = this.vertexRightY +5 ;
+        
+        this.draw();
+  
     }
     
     
 }
-var b1 = new Bird(200,200,50,50);    
+var b1 = new Bird(200,500,1,1);    
+
+var b2 = new Bird(300,100,50,50);  
+
+var c1 = new Circle(200,200, 10, 10)
 
 
 
-b1.draw();
-
-b1.update();
-b1.update();
-b1.update();
 
 function Circle(x,y,dx,dy) {
     this.x = x;
@@ -111,7 +140,16 @@ function Circle(x,y,dx,dy) {
     }
 }
 
+function animate() {
+    requestAnimationFrame(animate);
+    
+    c.clearRect(0,0,innerWidth,innerHeight);
+    
+    b1.update();
+    
+}
 
+animate();
 
 
 entities.push(new Circle(200,200, 10, 10));
