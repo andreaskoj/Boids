@@ -7,109 +7,96 @@ c = canvas.getContext('2d')
 
 var entities = [];
 
-
-
-//c.beginPath();
-//c.moveTo(300,300);
-//c.lineTo(285,250);
-//c.lineTo(270,300);
-//c.closePath();
-//c.fill();
-//
-
-
-
-
 var x = Math.random() * innerWidth;
 var y = Math.random() * innerHeight;
 var dx = (Math.random() - 0.5 ) *20;
 var dy = (Math.random() - 0.5 ) *20;
 var radious = 30;
 
-class Bird {
-            
-    constructor(pos_x, pos_y, dx, dy) {
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
+class PowerBird {
+    
+    constructor(mx,my,size,dx,dy) {
         
+        // defining the shape on the triangle (360 / 45, one step is 8 deg )
+        this.angleOneRad = 144 * Math.PI/180;//18*8
+        this.angleTwoRad = 216 * Math.PI/180;//18*8 + 9*8
+        
+        // center point of the triangle
+        this.mx = mx;
+        this.my = my;
+        
+        //size of the triangle 
+        this.size = size;
+        
+        //velocity of the triangle
         this.dx = dx;
         this.dy = dy;
+        
+        //angle  of the triangle 
+        this.deg = 45;
+        
+        
+        this.magnitude = Math.sqrt(Math.pow(this.dx,2) + Math.pow(this.dy,2));
+        //console.log(this.magnitude);
+        
+        this.an= (Math.atan(-20));
+    
+        console.log(this.an);
 
-        this.vertexLeftX = pos_x
-        this.vertexLeftY = pos_y
-        
-        this.vertexTopX = this.vertexLeftX + -20;
-        this.vertexTopY = this.vertexLeftY + -60;
-        
-        this.vertexRightX = this.vertexTopX + -20;
-        this.vertexRightY = this.vertexTopY + 60;
-        //console.log(this.vertexTopX);
     }
     
     draw() {
-        //console.log(this.vertexLeftX);
-        c.beginPath();
-        c.moveTo(this.vertexLeftX, this.vertexLeftY);
-        c.lineTo(this.vertexTopX, this.vertexTopY);
-        c.lineTo(this.vertexRightX, this.vertexRightY);
+        var radians=this.an
+        
+        c.translate(this.mx,this.my);
+        c.rotate(radians);
+       
+        c.beginPath();        
+        //start the line
+        c.moveTo (this.size * Math.cos(0), this.size * Math.sin(0));
+        
+        //first line
+        c.lineTo(this.size * Math.cos(this.angleOneRad),
+                 this.size * Math.sin(this.angleOneRad));
+        
+        //second line
+        c.lineTo(this.size * Math.cos(this.angleTwoRad),
+                 this.size * Math.sin(this.angleTwoRad));
+        
         c.closePath();
+        c.stroke();
         c.fill();
-    }
-    
-    move() {
-        console.log("tx" +this.vertexTopX);
-        console.log("ty" +this.vertexTopY);
         
-        console.log("rx" +this.vertexRightX);
-        console.log("ry" +this.vertexRightY);
-        
-        console.log("lx" +this.vertexLeftX);
-        console.log("ly" +this.vertexLeftY);
-        console.log(" ");
-        this.vertexTopX = this.vertexTopX;
-        this.vertexTopY = this.vertexTopY +20;
-        
-        this.vertexLeftX = this.vertexLeftX;
-        this.vertexLeftY = this.vertexLeftY + 20;
-        
-        this.vertexRightX = this.vertexRightX;
-        this.vertexRightY = this.vertexRightY+20;
-        this.draw();
-        console.log(this.vertexTopX);
-        console.log(this.vertexTopY);
-        
-        console.log(this.vertexRightX);
-        console.log(this.vertexRightY);
-        
-        console.log(this.vertexLeftX);
-        console.log(this.vertexLeftY);
+        c.rotate(-radians);
+        c.translate(-this.mx ,-this.my); 
     }
     
     update() {
-
-        this.vertexTopX = this.vertexTopX;
-        this.vertexTopY = this.vertexTopY + 5;
         
-        this.vertexLeftX = this.vertexLeftX ;
-        this.vertexLeftY = this.vertexLeftY + 5;
+//        console.log("tx" +this.vtx);
+//        console.log("ty" +this.vty);
+//        
+//        console.log("rx" +this.vrx);
+//        console.log("ry" +this.vry);
+//        
+//        console.log("lx" +this.vlx);
+//        console.log("ly" +this.vry);
+//        console.log(" ");
         
-        this.vertexRightX = this.vertexRightX;
-        this.vertexRightY = this.vertexRightY +5 ;
-        
+        this.mx = this.mx + this.dx ;
+        this.my = this.my + this.dy; 
+                
+        //this.deg = this.deg ;
         this.draw();
-  
+        
+        // next step implement canvas boundries 
+        
     }
-    
-    
+
 }
-var b1 = new Bird(200,500,1,1);    
 
-var b2 = new Bird(300,100,50,50);  
-
-var c1 = new Circle(200,200, 10, 10)
-
-
-
+var pb1 = new PowerBird(200,200,30,2,2);
+pb1.update();
 
 function Circle(x,y,dx,dy) {
     this.x = x;
@@ -145,15 +132,15 @@ function animate() {
     
     c.clearRect(0,0,innerWidth,innerHeight);
     
-    b1.update();
+    pb1.update();
     
 }
 
-animate();
+//animate();
 
 
-entities.push(new Circle(200,200, 10, 10));
-entities.push(new Circle(00,200, 10, 10));
+//entities.push(new Circle(200,200, 10, 10));
+//entities.push(new Circle(00,200, 10, 10));
 
 
 //function animate() {
@@ -174,7 +161,11 @@ entities.push(new Circle(00,200, 10, 10));
 
 window.addEventListener('click', function(event) {
     
-    entities.push(new Circle(event.x,event.y, 10, 10));
-    console.log(entities.length);
+    //entities.push(new Circle(event.x,event.y, 10, 10));
+
+    var x = event.clientX - canvas.offsetLeft;
+    var y = event.clientY - canvas.offsetTop;
+console.log(x);
+console.log(y);
     
 })
