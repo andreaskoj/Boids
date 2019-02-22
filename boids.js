@@ -1,19 +1,10 @@
+//init canvas
 var canvas = document.querySelector('canvas')
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 c = canvas.getContext('2d')
 
-//Global variables
-
-var entities = [];
-
-var x = Math.random() * innerWidth;
-var y = Math.random() * innerHeight;
-var dx = (Math.random() - 0.5 ) *20;
-var dy = (Math.random() - 0.5 ) *20;
-var radious = 30;
-
-class PowerBird {
+class bird {
     
     constructor(mx,my,size,dx,dy) {
         
@@ -31,28 +22,24 @@ class PowerBird {
         //velocity of the triangle
         this.dx = dx;
         this.dy = dy;
-        
+    
         //angle  of the triangle 
-        this.deg = 45;
-        
+        //this.deg = 45;
         
         this.magnitude = Math.sqrt(Math.pow(this.dx,2) + Math.pow(this.dy,2));
-        //console.log(this.magnitude);
-        
-        this.an= (Math.atan(-20));
-    
-        console.log(this.an);
 
+        //atan2 > computes the angle based on the velocity vector
+        //params 1st: y-axis, 2nd: x-axis 
     }
     
     draw() {
-        var radians=this.an
         
+        this.angle = (Math.atan2(this.dy,this.dx));        
         c.translate(this.mx,this.my);
-        c.rotate(radians);
-       
-        c.beginPath();        
-        //start the line
+        c.rotate(this.angle);
+        c.beginPath(); 
+        
+        //start point
         c.moveTo (this.size * Math.cos(0), this.size * Math.sin(0));
         
         //first line
@@ -67,102 +54,45 @@ class PowerBird {
         c.stroke();
         c.fill();
         
-        c.rotate(-radians);
+        c.rotate(-this.angle);
         c.translate(-this.mx ,-this.my); 
     }
     
     update() {
         
-//        console.log("tx" +this.vtx);
-//        console.log("ty" +this.vty);
-//        
-//        console.log("rx" +this.vrx);
-//        console.log("ry" +this.vry);
-//        
-//        console.log("lx" +this.vlx);
-//        console.log("ly" +this.vry);
-//        console.log(" ");
-        
+        //updting postion
         this.mx = this.mx + this.dx ;
         this.my = this.my + this.dy; 
-                
-        //this.deg = this.deg ;
-        this.draw();
-        
-        // next step implement canvas boundries 
-        
+        // x
+        if(this.mx + this.size > innerWidth || this.mx - this.size < 0) {
+        this.dx = -this.dx;
+        }
+        //y 
+        if(this.my + this.size > innerWidth || this.my - this.size < 0){
+        this.dy = -this.dy;    
+        }
+        this.draw();       
     }
 
 }
 
-var pb1 = new PowerBird(200,200,30,2,2);
-pb1.update();
-
-function Circle(x,y,dx,dy) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    
-    this.draw = function() {
-        c.beginPath();
-        c.arc(this.x, this.y, 30, 0, Math.PI*2, false);
-        c.stroke();  
-        c.fill();
-    }
-    
-    this.update =function() {
-        if(this.x + radious > innerWidth || this.x - radious < 0){
-        this.dx = -this.dx;     
-    }
-    
-    if(this.y + radious > innerHeight || this.y - radious < 0){
-        this.dy = -this.dy;     
-    }
-    
-        this.x+=this.dx;
-        this.y+=this.dy;
-        
-        this.draw();
-    }
-}
+var pb1 = new bird(200,200,20,-1,1);
+//var pb2 = new bird(222,230,20,1,1);
 
 function animate() {
     requestAnimationFrame(animate);
-    
     c.clearRect(0,0,innerWidth,innerHeight);
     
     pb1.update();
+    //pb2.update();
     
 }
 
-//animate();
+animate();
 
 
-//entities.push(new Circle(200,200, 10, 10));
-//entities.push(new Circle(00,200, 10, 10));
-
-
-//function animate() {
-//    requestAnimationFrame(animate);
-//    
-//    c.clearRect(0,0,innerWidth,innerHeight);
-//    
-//    //b1.update();
-////    
-////    entities.forEach(function(element){
-////        element.update();    
-////    });
-////    
-//    
-//}
-
-//animate();
-
+//listeners
 window.addEventListener('click', function(event) {
-    
-    //entities.push(new Circle(event.x,event.y, 10, 10));
-
     var x = event.clientX - canvas.offsetLeft;
     var y = event.clientY - canvas.offsetTop;
 console.log(x);
