@@ -4,6 +4,22 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 c = canvas.getContext('2d')
 
+//global objects
+birds = [];
+obstacles = [];
+
+class obstacle {
+    
+    constructor(x1,x2,y1,y2){
+        this.x1 = x1;
+        this.x2 = x2;
+        
+        this.y1 = y1;
+        this.y2 = y2;
+    }
+
+}
+
 class bird {
     
     constructor(mx,my,size,dx,dy) {
@@ -26,14 +42,14 @@ class bird {
         //angle  of the triangle 
         //this.deg = 45;
         
-        this.magnitude = Math.sqrt(Math.pow(this.dx,2) + Math.pow(this.dy,2));
+        //this.magnitude = Math.sqrt(Math.pow(this.dx,2) + //Math.pow(this.dy,2));
 
-        //atan2 > computes the angle based on the velocity vector
-        //params 1st: y-axis, 2nd: x-axis 
     }
     
     draw() {
         
+        //atan2 > computes the angle based on the velocity vector
+        //params 1st: y-axis, 2nd: x-axis 
         this.angle = (Math.atan2(this.dy,this.dx));        
         c.translate(this.mx,this.my);
         c.rotate(this.angle);
@@ -57,8 +73,16 @@ class bird {
         c.rotate(-this.angle);
         c.translate(-this.mx ,-this.my); 
     }
+  
+    lookAround(){
+        //check obstacles 
+        obstacles.forEach(function(obstacle){
+            if(this.mx);
+        })
+        
+    }
     
-    update() {
+    fly() {
         
         //updting postion
         this.mx = this.mx + this.dx ;
@@ -76,15 +100,26 @@ class bird {
 
 }
 
-var pb1 = new bird(200,200,20,-1,1);
+
+//create default obstacles - boundries of the canvas 
+var wallN = new obstacle(0,innerWidth,0,0);
+var wallE = new obstacle(innerWidth,innerWidth,0,innerHeight);
+var wallS = new obstacle(0,innerWidth,innerHeight,innerHeight);
+var wallW = new obstacle(0,0,0,innerHeight);
+obstacles.push(wallN,wallE,wallS,wallW);
+
+var pb1 = new bird(200,200,15,-1,1);
+birds.push(pb1);
 //var pb2 = new bird(222,230,20,1,1);
 
 function animate() {
     requestAnimationFrame(animate);
     c.clearRect(0,0,innerWidth,innerHeight);
     
-    pb1.update();
-    //pb2.update();
+    
+    birds.forEach(function(bird){
+        bird.fly();
+    })
     
 }
 
@@ -95,7 +130,11 @@ animate();
 window.addEventListener('click', function(event) {
     var x = event.clientX - canvas.offsetLeft;
     var y = event.clientY - canvas.offsetTop;
-console.log(x);
-console.log(y);
+    //console.log(x);
+    //console.log(y);
+    
+    var newBird = new bird(x,y,15,-1,1);
+    birds.push(newBird);
+    console.log(obstacles);
     
 })
