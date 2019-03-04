@@ -4,6 +4,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 c = canvas.getContext('2d')
 
+const fullRadians = 6.28319;
 //global objects
 birds = [];
 obstacles = [];
@@ -37,14 +38,28 @@ var e = new line(innerWidth,0,0,"x");
 
 obstacles.push(w);
 obstacles.push(n);
-//obstacles.push(e);
+obstacles.push(e);
 
 class bird {
     
-    constructor(mx,my,size,dx,dy) {
+    constructor(mx,my,size,v,leader) {
         
-        this.len;
-        // defining the shape on the triangle (360 / 45, one step is 8 deg )
+        //velocity
+        this.v = v;
+        
+        this.counter = 50;
+        
+        this.isLeader = leader;
+        
+        //cordinates of the target 
+        this.targetX = 0;
+        this.targetY = 0;
+        
+        
+        //current angle
+        this.angle;
+        
+        // defining the shape of the triangle (360 / 45, one step is 8 deg )
         this.angleOneRad = 144 * Math.PI/180;//18*8
         this.angleTwoRad = 216 * Math.PI/180;//18*8 + 9*8
         
@@ -55,20 +70,23 @@ class bird {
         //size of the triangle 
         this.size = size;
         
-        //velocity of the triangle
-        this.dx = dx;
-        this.dy = dy;
-    
-        //angle  of the triangle 
-        //this.deg = 45;
+        //init random direction of a new trangle
+        let randomAngle = Math.random() * fullRadians;
         
-        //this.magnitude = Math.sqrt(Math.pow(this.dx,2) + //Math.pow(this.dy,2));
+        this.dx = this.v * Math.cos(randomAngle);
+        this.dy = this.v * Math.sin(randomAngle);
+        
+    }
+    
+    assignLeadership() {
+        
     }
     
     draw() {
         
         //atan2 > computes the angle based on the velocity vector
         //params 1st: y-axis, 2nd: x-axis 
+        //console.log(this.angle);
         this.angle = (Math.atan2(this.dy,this.dx));        
         c.translate(this.mx,this.my);
         c.rotate(this.angle);
@@ -93,61 +111,89 @@ class bird {
         c.translate(-this.mx ,-this.my); 
     }
   
+ // if the distance is smaller than 150 then follow 
+    
+    changeDirection() {
+        
+    }
+    
     lookAround(){        
-        let distance;
+        //let distance;
+        let distanceToBird;
+        
+         //check the distance to other birds
+        for (let i=0; i<birds.length; i ++){
+            let mx = this.mx;
+            let my = this.my;
+            
+            distanceToBird = Math.sqrt(Math.pow(birds[i].mx-mx,2) + Math.pow(birds[i].my-my,2));
+            distanceToBird=Math.abs(distanceToBird);
+            //console.log(distanceToBird);
+            
+            //console.log(this.targetX);
+            if(distanceToBird > 0 && distanceToBird <= 150 && this.targetX == 0 && this.targetY == 0 && birds[i].isLeader == true  ) {
+               console.log("printed"); 
+               this.targetX = birds[i].mx;
+               this.targetY = birds[i].my;    
                 
-        for(let i=0; i<obstacles.length; i++){
-            //compute distance to every obstacle if it's close do next
-            distance = (this.mx * obstacles[i].a + this.my*obstacles[i].b +
-                        obstacles[i].c)/(Math.sqrt(Math.pow(obstacles[i].a,2)+
-                        Math.pow(obstacles[i].b,2)));
-            if(distance <this.size/2 && obstacles[i].name == 'x') {
-                this.dx = -this.dx;
             }
-            else if(distance <this.size/2 && obstacles[i].name == 'y'){
-                this.dy = -this.dy;
-            }
-            
-//            else if(distance <this.size/2 && obstacles[i].name == 'xy'){
-//                this.dy = -this.dy;
-//                this.dx = -this.dx;
-//            } 
-            
-
+                
         }
-        //check distance from every obstacle
-//        obstacles.forEach(function(o){
-//            (distance = currentX * o.a + currentY * o.b + o.c)/
-//            Math.sqrt(Math.pow(o.a) + Math.pow(o.b));
-//            if(distance <this.size/2) {
-//                this.dx = -this.dx;
-//            }
-//        })
-//        this.len = (this.mx) / Math.sqrt(2);
-//        if(this.len <this.size/2) {
-//            this.dx = -this.dx;
+        
+//        for(let i=0; i<obstacles.length; i++){
+//            
+//            //compute distance to every obstacle if it's close do next
+//            distance = (this.mx * obstacles[i].a + this.my*obstacles[i].b +
+//                        obstacles[i].c)/(Math.sqrt(Math.pow(obstacles[i].a,2)+
+//                        Math.pow(obstacles[i].b,2)));
+//            console.log("Distance: " +distance+ "  name: " +obstacles[i].name );
+//          
 //        }
-        
-        //console.log(obstacles);
-//        obstacles.forEach(function(obstacle){
-//            if(this.mx);
-//        })
-        
+
     }
     
     fly() {
         
-        //updting postion
-        this.mx = this.mx + this.dx ;
+        
+        if(this.targetX > 0 && this.targetY > 0 ){
+            //start following change direction 
+            let newX;
+            let newY;
+            newX = (this.targetX - this.mx)%1;
+            newY = (this.targetY - this.my)%1;
+            
+            //this.dx = this.v * Math.cos(newX);
+            //this.dy = this.v * Math.sin(newY);
+            console.log(newX + "  " + newY);
+            
+        }
+        
+        
+        //change randomly direction after (counter) steps
+        this.counter = this.counter - 1;
+        //console.log(this.counter);
+        if(this.counter == 0) {
+            //console.log(this.counter);
+            let randomAngle = Math.random() - 1;
+            
+            //this.dx = (this.dx + randomAngle)%1;
+            //this.dy = (this.dy + randomAngle)%1;
+           // console.log(this.dx + "   "+ this.dy);
+            this.counter = 100;    
+        }
+        
+        // acceleration 
+        this.mx = this.mx + this.dx;
         this.my = this.my + this.dy; 
-//        // x
-//        if(this.mx + this.size > innerWidth || this.mx - this.size < 0) {
-//        this.dx = -this.dx;
-//        }
-//        //y 
-//        if(this.my + this.size > innerWidth || this.my - this.size < 0){
-//        this.dy = -this.dy;    
-//        }
+        
+        // change direction if the wall is approched 
+        if(this.mx + this.size > innerWidth || this.mx - this.size < 0) {
+        this.dx = -this.dx;
+        }
+        //y 
+        if(this.my + this.size > innerWidth || this.my - this.size < 0){
+        this.dy = -this.dy;    
+        }
         
         this.lookAround();
         this.draw();       
@@ -162,8 +208,8 @@ class bird {
 //var wallW = new obstacle(0,0,0,innerHeight);
 //obstacles.push(wallN,wallE,wallS,wallW);
 
-var pb1 = new bird(200,200,15,0,-1);
-//birds.push(pb1);
+var pb1 = new bird(200,200,15,1,true);
+birds.push(pb1);
 //var pb2 = new bird(222,230,20,1,1);
 
 function animate() {
@@ -187,7 +233,7 @@ window.addEventListener('click', function(event) {
     //console.log(x);
     //console.log(y);
     
-    var newBird = new bird(x,y,15,-1,-1);
+    var newBird = new bird(x,y,15,1,false);
     birds.push(newBird);
     //console.log(obstacles);
     
