@@ -55,10 +55,6 @@ class bird {
         this.targetX = 0;
         this.targetY = 0;
         
-        
-        //current angle
-        this.angle;
-        
         // defining the shape of the triangle (360 / 45, one step is 8 deg )
         this.angleOneRad = 144 * Math.PI/180;//18*8
         this.angleTwoRad = 216 * Math.PI/180;//18*8 + 9*8
@@ -71,10 +67,11 @@ class bird {
         this.size = size;
         
         //init random direction of a new trangle
-        let randomAngle = Math.random() * fullRadians;
+        this.angle = Math.random() * fullRadians;
         
-        this.dx = this.v * Math.cos(randomAngle);
-        this.dy = this.v * Math.sin(randomAngle);
+        //console.log("ANGLE " + randomAngle);
+        this.dx = this.v * Math.cos(this.angle);
+        this.dy = this.v * Math.sin(this.angle);
         
     }
     
@@ -88,6 +85,7 @@ class bird {
         //params 1st: y-axis, 2nd: x-axis 
         //console.log(this.angle);
         this.angle = (Math.atan2(this.dy,this.dx));        
+        //console.log(this.angle);
         c.translate(this.mx,this.my);
         c.rotate(this.angle);
         c.beginPath(); 
@@ -150,6 +148,7 @@ class bird {
 //          
 //        }
 
+        
     }
     
     fly() {
@@ -164,21 +163,30 @@ class bird {
             
             //this.dx = this.v * Math.cos(newX);
             //this.dy = this.v * Math.sin(newY);
-            console.log(newX + "  " + newY);
+            //console.log(newX + "  " + newY);
             
         }
-        
+        // logic -> choose one ange shift and then follow it x steps
         
         //change randomly direction after (counter) steps
+        
         this.counter = this.counter - 1;
         //console.log(this.counter);
         if(this.counter == 0) {
-            //console.log(this.counter);
-            let randomAngle = Math.random() - 1;
+            console.log(this.counter);
+            let randomAngle = getRandomArbitrary(-0.02,0.02);
+            let tempAngle;
+            //console.log("invoked");
+            tempAngle = (Math.atan2(this.dy,this.dx)); 
+            // get the angle
+            this.dx =this.v * Math.cos(tempAngle + randomAngle);
+            this.dy= this.v * Math.sin(tempAngle + randomAngle);
+            
             
             //this.dx = (this.dx + randomAngle)%1;
             //this.dy = (this.dy + randomAngle)%1;
-           // console.log(this.dx + "   "+ this.dy);
+            //console.log(angleX + "   "+ angleY);
+        
             this.counter = 100;    
         }
         
@@ -238,3 +246,9 @@ window.addEventListener('click', function(event) {
     //console.log(obstacles);
     
 })
+
+//helpers functions 
+
+function getRandomArbitrary(min,max) {
+    return Math.random() * (max - min) + min;
+}
