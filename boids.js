@@ -7,38 +7,6 @@ c = canvas.getContext('2d')
 const fullRadians = 6.28319;
 //global objects
 birds = [];
-obstacles = [];
-
-class obstacle {
-    
-    constructor(x1,x2,y1,y2){
-        this.x1 = x1;
-        this.x2 = x2;
-        
-        this.y1 = y1;
-        this.y2 = y2;
-    }
-
-}
-
-class line{
-    //type defines if the line is parallel to x or y axis
-    constructor(a,b,c,name) {
-        this.name = name;
-        this.a = a;
-        this.b = b;
-        this.c = c;
-    }
-}
-
-//namin functions - temporary solution
-var w = new line(1, 0, 0, "x");
-var n = new line(0, 1, 0, "y");
-var e = new line(innerWidth,0,0,"x");
-
-obstacles.push(w);
-obstacles.push(n);
-obstacles.push(e);
 
 class bird {
     
@@ -47,10 +15,9 @@ class bird {
         //velocity
         this.v = v;
         
-        this.counter = 50;
-        
-        this.isLeader = leader;
-        
+        this.counter = 100;
+        this.randomAngle=0;
+                
         //cordinates of the target 
         this.targetX = 0;
         this.targetY = 0;
@@ -72,32 +39,27 @@ class bird {
         //console.log("ANGLE " + randomAngle);
         this.dx = this.v * Math.cos(this.angle);
         this.dy = this.v * Math.sin(this.angle);
-        
     }
     
-    assignLeadership() {
-        
-    }
     
     draw() {
-        
+        //drawing bird object on the canvas
         //atan2 > computes the angle based on the velocity vector
         //params 1st: y-axis, 2nd: x-axis 
-        //console.log(this.angle);
-        this.angle = (Math.atan2(this.dy,this.dx));        
-        //console.log(this.angle);
+        this.angle = (Math.atan2(this.dy,this.dx));    
+        
         c.translate(this.mx,this.my);
         c.rotate(this.angle);
         c.beginPath(); 
         
-        //start point
+        //start point of the object shape 
         c.moveTo (this.size * Math.cos(0), this.size * Math.sin(0));
         
-        //first line
+        //first line of the object shape 
         c.lineTo(this.size * Math.cos(this.angleOneRad),
                  this.size * Math.sin(this.angleOneRad));
         
-        //second line
+        //second line of the object shape
         c.lineTo(this.size * Math.cos(this.angleTwoRad),
                  this.size * Math.sin(this.angleTwoRad));
         
@@ -108,15 +70,73 @@ class bird {
         c.rotate(-this.angle);
         c.translate(-this.mx ,-this.my); 
     }
-  
- // if the distance is smaller than 150 then follow 
+        
+    // TODO: fix chaning position after changing side
+    fly() {
+                
+        // updating movement 
+        this.mx = this.mx + this.dx;
+        this.my = this.my + this.dy; 
+        
+        // X axis (hit right wall)
+        if(this.mx > innerWidth ){
+        // +1 to avoid stucking on the bottom wall (falling into next codition)   
+            this.mx = - this.size + 1;  
+        }
+        
+        // X axis (hit left wall)
+        if(this.mx <= -this.size){
+            this.mx = innerWidth;
+        }
+        
+        // Y axis (hit bottom wall)
+        if(this.my  > innerHeight) {
+
+            this.my = -this.size + 1;
+            //this.mx = -this.mx;
+        } 
+        
+        // Y axis (hit top wall)        
+        if(this.my  <= -this.size) {
+            this.my = innerHeight;
+        }
+        
+        
+        this.calculateDistanceBetweenBirds();
+        
+        this.draw();       
+    }
     
-    changeDirection() {
+    // idea - when a bird spot another bird init flock and assign 
+    initFlock(){
         
     }
     
-    lookAround(){        
-        //let distance;
+    flockCohesion() {
+        
+        
+    }
+    
+    
+    //responsible for random trajectory
+    randomTrajectory(){
+        
+        if(this.counter == 0){
+            this.randomAngle = getRandomArbitrary(-0.03,0.03); 
+            this.counter = 50;
+        }
+        
+        let tempAngle = (Math.atan2(this.dy,this.dx)); 
+                
+        this.dx =this.v * Math.cos(tempAngle + this.randomAngle);
+        this.dy= this.v * Math.sin(tempAngle + this.randomAngle);
+
+        this.counter= this.counter -1;   
+    }
+    
+    //calculating distance between objects   
+    calculateDistanceBetweenBirds(){        
+        
         let distanceToBird;
         
          //check the distance to other birds
@@ -128,103 +148,25 @@ class bird {
             distanceToBird=Math.abs(distanceToBird);
             //console.log(distanceToBird);
             
-            //console.log(this.targetX);
-            if(distanceToBird > 0 && distanceToBird <= 150 && this.targetX == 0 && this.targetY == 0 && birds[i].isLeader == true  ) {
-               console.log("printed"); 
-               this.targetX = birds[i].mx;
-               this.targetY = birds[i].my;    
-                
-            }
-                
-        }
-        
-//        for(let i=0; i<obstacles.length; i++){
-//            
-//            //compute distance to every obstacle if it's close do next
-//            distance = (this.mx * obstacles[i].a + this.my*obstacles[i].b +
-//                        obstacles[i].c)/(Math.sqrt(Math.pow(obstacles[i].a,2)+
-//                        Math.pow(obstacles[i].b,2)));
-//            console.log("Distance: " +distance+ "  name: " +obstacles[i].name );
-//          
-//        }
+            
+            //if the distance to another bird is less than 100
+            if(distanceToBird > 0 && distanceToBird <= 100) {
+               
+                console.log("Closer than 100px" + distanceToBird)
 
-        
+            } 
+        }   
     }
     
-    fly() {
-        
-        
-        if(this.targetX > 0 && this.targetY > 0 ){
-            //start following change direction 
-            let newX;
-            let newY;
-            newX = (this.targetX - this.mx)%1;
-            newY = (this.targetY - this.my)%1;
-            
-            //this.dx = this.v * Math.cos(newX);
-            //this.dy = this.v * Math.sin(newY);
-            //console.log(newX + "  " + newY);
-            
-        }
-        // logic -> choose one ange shift and then follow it x steps
-        
-        //change randomly direction after (counter) steps
-        
-        this.counter = this.counter - 1;
-        //console.log(this.counter);
-        if(this.counter == 0) {
-            console.log(this.counter);
-            let randomAngle = getRandomArbitrary(-0.02,0.02);
-            let tempAngle;
-            //console.log("invoked");
-            tempAngle = (Math.atan2(this.dy,this.dx)); 
-            // get the angle
-            this.dx =this.v * Math.cos(tempAngle + randomAngle);
-            this.dy= this.v * Math.sin(tempAngle + randomAngle);
-            
-            
-            //this.dx = (this.dx + randomAngle)%1;
-            //this.dy = (this.dy + randomAngle)%1;
-            //console.log(angleX + "   "+ angleY);
-        
-            this.counter = 100;    
-        }
-        
-        // acceleration 
-        this.mx = this.mx + this.dx;
-        this.my = this.my + this.dy; 
-        
-        // change direction if the wall is approched 
-        if(this.mx + this.size > innerWidth || this.mx - this.size < 0) {
-        this.dx = -this.dx;
-        }
-        //y 
-        if(this.my + this.size > innerWidth || this.my - this.size < 0){
-        this.dy = -this.dy;    
-        }
-        
-        this.lookAround();
-        this.draw();       
-    }
-
 }
 
-//create default obstacles - boundries of the canvas 
-//var wallN = new obstacle(0,innerWidth,0,0);
-//var wallE = new obstacle(innerWidth,innerWidth,0,innerHeight);
-//var wallS = new obstacle(0,innerWidth,innerHeight,innerHeight);
-//var wallW = new obstacle(0,0,0,innerHeight);
-//obstacles.push(wallN,wallE,wallS,wallW);
-
-var pb1 = new bird(200,200,15,1,true);
+var pb1 = new bird(200,200,15,2,true);
 birds.push(pb1);
-//var pb2 = new bird(222,230,20,1,1);
 
 function animate() {
     requestAnimationFrame(animate);
     c.clearRect(0,0,innerWidth,innerHeight);
-    
-    
+        
     birds.forEach(function(bird){
         bird.fly();
     })
@@ -233,22 +175,18 @@ function animate() {
 
 animate();
 
-
 //listeners
 window.addEventListener('click', function(event) {
     var x = event.clientX - canvas.offsetLeft;
     var y = event.clientY - canvas.offsetTop;
-    //console.log(x);
-    //console.log(y);
     
-    var newBird = new bird(x,y,15,1,false);
-    birds.push(newBird);
-    //console.log(obstacles);
-    
+    var newBird = new bird(x,y,15,2,false);
+    birds.push(newBird);    
 })
 
 //helpers functions 
 
+//get random number in range
 function getRandomArbitrary(min,max) {
     return Math.random() * (max - min) + min;
 }
