@@ -1,2 +1,5 @@
+Implementation of boids: https://en.wikipedia.org/wiki/Boids
 
-Demo here: https://andreaskoj.github.io/boids/
+Demo : https://andreaskoj.github.io/boids/
+
+Left click spawns a new boid.
